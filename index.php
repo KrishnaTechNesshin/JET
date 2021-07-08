@@ -181,17 +181,28 @@ body {
   <script>
 $(function(){
   $('.front').click(function(){
-    timm = 1;
+    timm = -1;
     var id = $(this).data('id');
     $(this).parent().addClass('flipped');
     $(this).parent().removeClass('reflipped');
     $(this).addClass('showingBack');
     $(this).css("z-index", 0);
     $(this).parent().css("z-index", id);
+
+    // timer activate
+    var sec_new = $(this).data('sec');
+    if(sec_new != '') {
+      timeouts.forEach(clearInterval);
+      clearInterval(myInterval);
+      timm = $(this).data('sec');;
+      $('#pause_ind').val(id);
+      start_slideshow();
+      start_timer();
+    }
   });
 
    $('.back').click(function(){
-    timm = 1;
+    timm = -1;
     var id = $(this).data('id');
     $(this).parent().removeClass('flipped');
     $(this).parent().addClass('reflipped');
@@ -255,8 +266,6 @@ $(function(){
     })
     });
     
-    
-    
   $("input[name='section']").click(function(){
     if($("#japanese").is(':checked')) {
       $(".lesson").show();  // checked
@@ -268,8 +277,12 @@ $(function(){
     }
   });
 
-  start_slideshow();
-  start_timer();
+  setTimeout(function() {
+    timm = $(".front").data('sec')-1;
+    start_slideshow();
+    start_timer();
+  }, 1);
+  
   $(".pause").click(function(){
     timeouts.forEach(clearInterval);
     clearInterval(myInterval);
@@ -285,7 +298,8 @@ $(function(){
   });
 }); 
 
-var timm = 1;
+
+var timm;
 var myInter;
 var timeouts = [];
 var myInterval;
@@ -298,13 +312,13 @@ function start_slideshow()
       var sec_new = $(e).data('sec');
       if(sec_new != '') {
         var intSec = sec_new * 1000;
-        if(pause_ind != 0 && i == pause_ind) {
-          intSec = (sec_new - timm + 1) * 1000;
+        if(i == pause_ind) {
+          intSec = (timm + 1) * 1000;
         }
         outSec += intSec;
 
         var t = setTimeout(function() {
-         timm = 1;
+         timm = sec_new;
           var id = $(e).data('id');
           $(e).parent().addClass('flipped');
           $(e).parent().removeClass('reflipped');
@@ -324,7 +338,7 @@ function start_slideshow()
 function start_timer()
 {
   myInterval = window.setInterval(function(){
-    $(".front span").html(timm++);
+    $(".front span").html(Math.abs(timm--));
   }, 1000);
 }
     
@@ -408,7 +422,7 @@ Vacabulary Test:
       <div class='front' data-id='<?php echo $cnt; ?>' data-sec='<?php echo $intvl; ?>'>
         <b style="font-size: 14pt;margin-left:15px;color: hotpink">No : <?php echo $cnt; ?></b>
         <b style="font-size: 14pt;margin-left:15px;color: red">Sec : </b>
-        <b><span style="font-size: 14pt;margin-left:15px;color: red">0 </span></b>
+        <b><span style="font-size: 14pt;margin-left:15px;color: red"><?php echo ($intvl) ? $intvl : 0; ?> </span></b>
         <b style="font-size: 14pt;margin-left:15px;color: black"><?php echo $hint; ?></b>
         <p><?php echo $que; ?></p>
       </div>
